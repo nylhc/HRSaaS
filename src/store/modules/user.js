@@ -1,8 +1,9 @@
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login } from '@/api/user'
+import { login, getUserInfo } from '@/api/user'
 // 状态
 const state = {
-  token: getToken() // 设置token初始状态   token持久化 => 放到缓存中
+  token: getToken(), // 设置token初始状态   token持久化 => 放到缓存中
+  userInfo: {} // 定义一个空的对象 不是null 因为后边我要开发userInfo的属性给别人用  userInfo.name
 }
 // 修改状态
 const mutations = {
@@ -16,6 +17,15 @@ const mutations = {
   removeToken(state) {
     state.token = null
     removeToken()
+  },
+  // 设置用户信息
+  setUserInfo(state, result) {
+    state.userInfo = result // 这样是响应式
+    // state.userInfo = { ...result } // 也是响应式 用浅拷贝的方式去赋值对象 因为这样数据更新之后，才会触发组件的更新
+  },
+  // 删除用户信息
+  removeUserInfo(state) {
+    state.userInfo = {}
   }
 }
 // 执行异步
@@ -38,6 +48,13 @@ const actions = {
     // 现在有用户token
     // actions 修改state 必须通过mutations
     context.commit('setToken', result)
+  },
+
+  // 获取用户资料action
+  async getUserInfo(context) {
+    const result = await getUserInfo()
+    context.commit('setUserInfo', result)
+    return result // 这里为什么要返回 为后面做权限埋下伏笔
   }
 }
 

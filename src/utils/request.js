@@ -1,3 +1,4 @@
+import store from '@/store'
 import Axios from 'axios'
 import { Message } from 'element-ui'
 
@@ -6,7 +7,18 @@ const service = Axios.create({
   timeout: 5000 // 设置超时时间
 })
 
-service.interceptors.request.use()
+// 请求拦截器
+service.interceptors.request.use(config => {
+  // 在这个位置需要统一的去注入token
+  if (store.getters.token) {
+    // 如果token存在 注入token
+    config.headers['Authorization'] = `Bearer ${store.getters.token}`
+  }
+  return config // 必须返回配置
+}, error => {
+  return Promise.reject(error)
+})
+
 // 响应拦截器
 service.interceptors.response.use(response => {
   // axios默认加了一层data
