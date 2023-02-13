@@ -24,10 +24,10 @@
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
+          ref="mobile"
           v-model="loginForm.mobile"
           placeholder="请输入手机号"
-          name="username"
+          name="mobile"
           type="text"
           tabindex="1"
           auto-complete="on"
@@ -77,6 +77,7 @@
 
 <script>
 import { validMobile } from '@/utils/validate'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'Login',
@@ -87,12 +88,12 @@ export default {
       // } else {
       //   callback()
       // }
-      validMobile(value) ? callback : callback(new Error('手机号码不正确'))
+      validMobile(value) ? callback() : callback(new Error('手机号码不正确'))
     }
     return {
       loginForm: {
-        mobile: '',
-        password: ''
+        mobile: '13800000002',
+        password: '123456'
       },
       loginRules: {
         mobile: [{ required: true, trigger: 'blur', message: '手机号不能为空' }, {
@@ -116,6 +117,8 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['user/login']),
+    // ...mapActions("user",['login']),
     showPwd () {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -127,21 +130,46 @@ export default {
       })
     },
     handleLogin () {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+      this.$refs.loginForm.validate(async isOK => {
+        if (isOK) {
+          try {
+            this.loading = true
+            // 只有校验通过了 我们才去调用action
+            await this['user/login'](this.loginForm)
+            console.log('-----------')
+            // 应该登录成功之后
+            // async标记的函数实际上一个promise对象
+            // await下面的代码 都是成功执行的代码
+            this.$router.push('/')
+          } catch (error) {
+            console.log(error)
+          } finally {
+            //  不论执行try 还是catch  都去关闭转圈
             this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+          }
         }
       })
     }
+
+    // async await 是将异步变成了同步
+    //  async handleLogin () {
+    //     try {
+    //       await this.$refs.loginForm.validate()
+    //       this.loading = true
+    //       // const res = await axios.post('/prod-api/sys/login',this.loginForm);
+    //       await this.login(this.loginForm)
+    //       this.$router.push('/')
+    //       // this.loading = false
+    //       // console.log('login', res)
+    //     } catch (error) {
+    //       console.log(error)
+    //       // 如果请求出错，也应该关闭loading效果
+    //       // this.loading = false
+    //     } finally {
+    //       // 无论成功还是失败都会执行
+    //       this.loading = false
+    //     }
+    //   }
   }
 }
 </script>
