@@ -81,7 +81,8 @@ export default {
     },
     async logout () {
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      // 跳转到登录页
+      this.$router.push(`/login`)
     }
   }
 }

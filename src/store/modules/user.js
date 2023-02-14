@@ -40,6 +40,7 @@ const actions = {
    *  }
    */
 
+  // 登录
   async login(context, data) {
     // 经过响应拦截器的处理之后 这里的result实际上就是 token
     const result = await login(data) // 实际上就是一个promise  result就是执行的结果
@@ -58,6 +59,14 @@ const actions = {
     // 此时已经获取到了用户的基本资料 迫不得已 为了头像再次调用一个接口
     context.commit('setUserInfo', baseResult)
     return result // 这里为什么要返回 为后面做权限埋下伏笔
+  },
+
+  // 登出的action
+  logout(context) {
+    // 删除token
+    context.commit('removeToken') // 不仅仅删除了vuex中的 还删除了缓存中的
+    // 删除用户资料
+    context.commit('removeUserInfo') // 删除用户信息
   }
 }
 
