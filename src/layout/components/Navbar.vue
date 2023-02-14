@@ -19,7 +19,7 @@
       >
         <div class="avatar-wrapper">
           <img
-            src="@/assets/common/bigUserHeader.png"
+            :src="staffPhoto"
             class="user-avatar"
           >
           <span class="name">{{ name }}</span>
@@ -65,8 +65,8 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar',
-      'name'
+      'name',
+      'staffPhoto'
     ])
   },
   methods: {

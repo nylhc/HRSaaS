@@ -1,5 +1,5 @@
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login, getUserInfo } from '@/api/user'
+import { login, getUserInfo, getUserDetailById } from '@/api/user'
 // 状态
 const state = {
   token: getToken(), // 设置token初始状态   token持久化 => 放到缓存中
@@ -52,8 +52,11 @@ const actions = {
 
   // 获取用户资料action
   async getUserInfo(context) {
-    const result = await getUserInfo()
-    context.commit('setUserInfo', result)
+    const result = await getUserInfo() // result就是用户的基本资料
+    const baseInfo = await getUserDetailById(result.userId) // 为了获取头像
+    const baseResult = { ...result, ...baseInfo } // 将两个接口结果合并
+    // 此时已经获取到了用户的基本资料 迫不得已 为了头像再次调用一个接口
+    context.commit('setUserInfo', baseResult)
     return result // 这里为什么要返回 为后面做权限埋下伏笔
   }
 }
