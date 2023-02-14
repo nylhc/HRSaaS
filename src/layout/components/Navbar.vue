@@ -22,7 +22,7 @@
             src="@/assets/common/bigUserHeader.png"
             class="user-avatar"
           >
-          <span class="name">管理员</span>
+          <span class="name">{{ name }}</span>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu
@@ -65,7 +65,8 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'name'
     ])
   },
   methods: {
