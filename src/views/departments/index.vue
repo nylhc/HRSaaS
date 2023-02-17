@@ -30,6 +30,7 @@
 
 <script>
 import TreeTools from './components/tree-tools.vue'
+import { getDepartments } from '@/api/departments'
 export default {
   components: {
     TreeTools
@@ -37,28 +38,24 @@ export default {
   data () {
     return {
       company: {
-        name: '江苏传智播客教育科技股份有限公司',
-        manager: '负责人'
+        name: '',
+        manager: ''
       },
-      departs: [{
-        name: '总裁办',
-        manager: '曹操',
-        children: [{
-          name: '董事会',
-          manager: '曹丕'
-        }]
-      },
-      {
-        name: '行政部',
-        manager: '刘备'
-      },
-      {
-        name: '人事部',
-        manager: '孙权'
-      }],
+      departs: [],
       defaultProps: {
         label: 'name' // 表示 从这个属性显示内容
       }
+    }
+  },
+  created () {
+    this.getDepartments() // 调用自身的方法
+  },
+  methods: {
+    async getDepartments () {
+      const result = await getDepartments()
+      this.company = { name: result.companyName, manager: '负责人' }
+      this.departs = result.depts // 需要将其转化成树形结构
+      console.log(result)
     }
   }
 }
