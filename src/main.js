@@ -11,6 +11,7 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
+import Component from '@/components'
 
 import * as directives from '@/directives'
 import '@/icons' // icon
@@ -43,6 +44,7 @@ Object.keys(directives).forEach(key => {
   Vue.directive(key, directives[key])
 })
 
+Vue.use(Component) // 注册自定义组件
 Vue.config.productionTip = false
 
 new Vue({
