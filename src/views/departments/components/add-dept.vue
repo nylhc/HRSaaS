@@ -1,7 +1,7 @@
 <template>
   <!-- 新增部门的弹层 -->
   <el-dialog
-    title="新增部门"
+    :title="showTitle"
     :visible="showDialog"
     @close="btnCancel"
   >
@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { getDepartments, addDepartments, getDepartDetail } from '@/api/departments'
+import { getDepartments, addDepartments, getDepartDetail, updateDepartments } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 
 export default {
@@ -154,6 +154,11 @@ export default {
       peoples: [] // 接收获取的员工简单列表的数据
     }
   },
+  computed: {
+    showTitle () {
+      return this.formData.id ? '编辑部门' : '新增子部门'
+    }
+  },
   methods: {
     // 获取员工简单列表数据
     async getEmployeeSimple () {
@@ -169,15 +174,29 @@ export default {
     btnOK () {
       this.$refs.deptForm.validate(async isOK => {
         if (isOK) {
+          // 要分清楚现在是编辑还是新增
+          if (this.formData.id) {
+            // 编辑模式  调用编辑接口
+            await updateDepartments(this.formData)
+          } else {
+            // 新增模式
+            await addDepartments({ ...this.formData, pid: this.treeNode.id }) // 调用新增接口 添加父部门的id
+          }
           // 表示可以提交了
-          await addDepartments({ ...this.formData, pid: this.treeNode.id }) // 调用新增接口 添加父部门的id
-          this.$emit('addDepts')
+          this.$emit('addDepts') // 告诉父组件 新增数据成功 重新拉取数据
           // update:props名称
           this.$emit('update:showDialog', false)
         }
       })
     },
     btnCancel () {
+      // 重置数据  因为resetFields 只能重置 表单上的数据 非表单上的 比如 编辑中id 不能重置
+      this.formData = {
+        name: '',
+        code: '',
+        manager: '',
+        introduce: ''
+      }
       this.$refs.deptForm.resetFields() // 重置校验字段
       this.$emit('update:showDialog', false) // 关闭
     }
