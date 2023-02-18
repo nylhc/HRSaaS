@@ -30,7 +30,10 @@
     </div>
 
     <!-- 放置新增弹层组件  -->
-    <add-dept :show-dialog="showDialog" />
+    <add-dept
+      :show-dialog="showDialog"
+      :tree-node="node"
+    />
   </div>
 </template>
 
@@ -64,7 +67,7 @@ export default {
   methods: {
     async getDepartments () {
       const result = await getDepartments()
-      this.company = { name: result.companyName, manager: '负责人' }
+      this.company = { name: result.companyName, manager: '负责人', id: '' }
       this.departs = tranListToTreeData(result.depts, '') // 需要将其转化成树形结构
       console.log(result)
     },
