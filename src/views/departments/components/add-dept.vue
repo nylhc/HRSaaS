@@ -3,10 +3,12 @@
   <el-dialog
     title="新增部门"
     :visible="showDialog"
+    @close="btnCancel"
   >
     <!-- 表单组件  el-form   label-width设置label的宽度   -->
     <!-- 匿名插槽 -->
     <el-form
+      ref="deptForm"
       :model="formData"
       :rules="rules"
       label-width="120px"
@@ -39,7 +41,16 @@
           v-model="formData.manager"
           style="width:80%"
           placeholder="请选择"
-        />
+          @focus="getEmployeeSimple"
+        >
+          <!-- 需要循环生成选项   这里做一下简单的处理 显示的是用户名 存的也是用户名-->
+          <el-option
+            v-for="item in peoples"
+            :key="item.id"
+            :label="item.username"
+            :value="item.username"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item
         label="部门介绍"
@@ -63,17 +74,22 @@
       <!-- 列被分为24 -->
       <el-col :span="6">
         <el-button
+          size="small"
+          @click="btnCancel"
+        >取消</el-button>
+        <el-button
           type="primary"
           size="small"
+          @click="btnOK"
         >确定</el-button>
-        <el-button size="small">取消</el-button>
       </el-col>
     </el-row>
   </el-dialog>
 </template>
 
 <script>
-import { getDepartments } from '@/api/departments'
+import { getDepartments, addDepartments, getDepartDetail } from '@/api/departments'
+import { getEmployeeSimple } from '@/api/employees'
 
 export default {
   // 需要传入一个props变量来控制 显示或者隐藏
@@ -134,7 +150,36 @@ export default {
         introduce: [{
           required: true, message: '部门介绍不能为空', trigger: 'blur'
         }, { trigger: 'blur', min: 1, max: 300, message: '部门介绍要求1-300个字符' }]
-      }
+      },
+      peoples: [] // 接收获取的员工简单列表的数据
+    }
+  },
+  methods: {
+    // 获取员工简单列表数据
+    async getEmployeeSimple () {
+      this.peoples = await getEmployeeSimple()
+      console.log('获取员工的简单列表', this.peoples)
+    },
+    // 获取部门详情
+    async getDepartDetail (id) {
+      this.formData = await getDepartDetail(id)
+      console.log('获取部门详情', this.formData)
+    },
+    // 点击确定时触发
+    btnOK () {
+      this.$refs.deptForm.validate(async isOK => {
+        if (isOK) {
+          // 表示可以提交了
+          await addDepartments({ ...this.formData, pid: this.treeNode.id }) // 调用新增接口 添加父部门的id
+          this.$emit('addDepts')
+          // update:props名称
+          this.$emit('update:showDialog', false)
+        }
+      })
+    },
+    btnCancel () {
+      this.$refs.deptForm.resetFields() // 重置校验字段
+      this.$emit('update:showDialog', false) // 关闭
     }
   }
 }
