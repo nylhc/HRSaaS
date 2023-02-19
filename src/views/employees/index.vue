@@ -15,6 +15,7 @@
           <el-button
             size="small"
             type="primary"
+            @click="showDialog = true"
           >新增员工</el-button>
         </template>
       </page-tools>
@@ -124,13 +125,19 @@
         </el-row>
       </el-card>
     </div>
+    <!-- 放置新增组件 -->
+    <add-employee :show-dialog.sync="showDialog" />
   </div>
 </template>
 
 <script>
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees' // 引入员工枚举对象
+import AddEmployee from './components/add-employee.vue'
 export default {
+  components: {
+    AddEmployee
+  },
   data () {
     return {
       loading: false,
@@ -139,8 +146,8 @@ export default {
         page: 1, // 当前页码
         size: 10,
         total: 0 // 总数
-      }
-
+      },
+      showDialog: false
     }
   },
   created () {
