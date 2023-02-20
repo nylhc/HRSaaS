@@ -7,6 +7,7 @@
           <el-button
             size="small"
             type="warning"
+            @click="$router.push('/import?type=user')"
           >导入</el-button>
           <el-button
             size="small"
