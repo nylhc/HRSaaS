@@ -46,7 +46,10 @@
       <el-row class="inline-info">
         <el-col :span="12">
           <el-form-item label="手机">
-            <el-input v-model="userInfo.mobile" />
+            <el-input
+              v-model="userInfo.mobile"
+              disabled
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -454,6 +457,8 @@
 
 <script>
 import EmployeeEnum from '@/api/constant/employees'
+import { getPersonalDetail, updatePersonal, saveUserDetailById } from '@/api/employees'
+import { getUserDetailById } from '@/api/user'
 export default {
   data () {
     return {
@@ -523,6 +528,31 @@ export default {
         proofOfDepartureOfFormerCompany: '', // 前公司离职证明
         remarks: '' // 备注
       }
+    }
+  },
+  created () {
+    this.getPersonalDetail()
+    this.getUserDetailById()
+  },
+  methods: {
+    async getPersonalDetail () {
+      this.formData = await getPersonalDetail(this.userId) // 获取员工数据
+      console.log('读取用户详情信息', getPersonalDetail(this.userId))
+    },
+    async savePersonal () {
+      await updatePersonal({ ...this.formData, id: this.userId })
+      console.log('更新用户详情的基础信息', updatePersonal({ ...this.formData, id: this.userId }))
+      this.$message.success('保存成功')
+    },
+    async saveUser () {
+      //  调用父组件
+      await saveUserDetailById(this.userInfo)
+      console.log('保存员工的基本信息', saveUserDetailById(this.userInfo))
+      this.$message.success('保存成功')
+    },
+    async getUserDetailById () {
+      this.userInfo = await getUserDetailById(this.userId)
+      console.log('获取用户的基本信息', getUserDetailById(this.userId))
     }
   }
 }
