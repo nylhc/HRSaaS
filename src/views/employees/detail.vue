@@ -44,7 +44,10 @@
             <component :is="userComponent" />
             <!-- <user-info /> -->
           </el-tab-pane>
-          <el-tab-pane label="岗位信息" />
+          <el-tab-pane label="岗位详情">
+            <!-- 放置岗位详情 -->
+            <component :is="jobComponent" />
+          </el-tab-pane>
         </el-tabs>
       </el-card>
     </div>
@@ -55,13 +58,16 @@
 import { getUserDetailById } from '@/api/user'
 import { saveUserDetailById } from '@/api/employees'
 import UserInfo from './components/user-info.vue'
+import JobInfo from './components/job-info.vue'
 export default {
   components: {
-    UserInfo
+    UserInfo,
+    JobInfo
   },
   data () {
     return {
       userComponent: 'UserInfo',
+      jobComponent: 'job-info',
       userId: this.$route.params.id, // 这样可以后面直接通过 this.userId进行获取数据
       userInfo: {
         //   专门存放基本信息
