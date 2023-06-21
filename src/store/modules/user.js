@@ -1,90 +1,49 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { setToken, getToken, removeToken } from '@/utils/auth'
+import { login, getUserInfo } from '@/api/user'
+// import router from '@/router'
+import router, { constantRoutes, resetRouter } from '@/router'
 
-const getDefaultState = () => {
-  return {
-    token: getToken(),
-    name: '',
-    avatar: ''
-  }
+const state = {
+  token: getToken() || '', // 从缓存中读取初始值
+  userInfo: {}, // 存储用户基本资料状态
+  routes: [...constantRoutes] // 静态路由的数组
 }
 
-const state = getDefaultState()
-
 const mutations = {
-  RESET_STATE: (state) => {
-    Object.assign(state, getDefaultState())
+  setUserInfo(state, payload) {
+    state.userInfo = payload
   },
-  SET_TOKEN: (state, token) => {
-    state.token = token
+  setToken(state, payload) {
+    state.token = payload
+    // 持久化存储token
+    setToken(payload)
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  removeToken(state) {
+    state.token = ''
+    removeToken()
   },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  setRoutes(state, filterRoutes) {
+    state.routes = [...constantRoutes, ...filterRoutes] // 静态路由 + 动态路由
   }
 }
 
 const actions = {
-  // user login
-  login({ commit }, userInfo) {
-    const { username, password } = userInfo
-    return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
+  logout(ctx) {
+    ctx.commit('removeToken')
+    ctx.commit('setUserInfo', {})
+    // 重置路由
+    resetRouter()
+    router.push('/login')
   },
-
-  // get user info
-  getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          return reject('Verification failed, please Login again.')
-        }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
+  async getUserInfo(ctx) {
+    const userInfo = await getUserInfo()
+    ctx.commit('setUserInfo', userInfo)
+    return userInfo
   },
-
-  // user logout
-  logout({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  },
-
-  // remove token
-  resetToken({ commit }) {
-    return new Promise(resolve => {
-      removeToken() // must remove  token  first
-      commit('RESET_STATE')
-      resolve()
-    })
+  async login(ctx, payload) {
+    // 这里发起异步请求，获取token，具体逻辑暂时省略
+    const token = await login(payload)
+    ctx.commit('setToken', token)
   }
 }
 

@@ -13,6 +13,7 @@ const store = new Vuex.Store({
     settings,
     user
   },
+  // 通常通过getters实现子模块数据的快捷访问
   getters
 })
 

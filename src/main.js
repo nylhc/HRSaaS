@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+// import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 
@@ -28,10 +28,26 @@ if (process.env.NODE_ENV === 'production') {
   mockXHR()
 }
 
+// 封装自定义指令 用来控制操作权
+Vue.directive('permission', {
+  // 会在指令作用的元素插入到页面完成以后触发
+  inserted(el, binding) {
+    // el 指令作用的元素的dom对象
+    console.log(store.state.user.userInfo?.roles?.points)
+    const points = store.state.user.userInfo?.roles?.points || [] // 当前用户信息的操作权
+    if (!points.includes(binding.value)) {
+      // 不存在就要删除或者禁用
+      el.remove() // 删除元素
+      // el.disabled = true
+      // 线上的权限数据和线下的代码进行对应
+    }
+  }
+})
+
 // set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+// Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ElementUI)
+Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
@@ -39,5 +55,5 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: (h) => h(App)
 })
